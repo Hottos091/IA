@@ -1,0 +1,42 @@
+{% load djangoIA_tags %}
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>{% block head %}
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        table, td{
+          border: 1px solid black;
+        }
+        table {
+          border-collapse: collapse;
+        }
+
+        .joueur1{
+            color: black;
+            background-color:red;
+            
+        }
+        .joueur2{
+            color: white;
+            background-color:blue;
+        }
+
+        td {
+          height: 30px;
+          width: 30px;
+          text-align:center;
+        }
+    </style>
+</head>
+{% endblock head %}
+{% block grid %}
+    {% block buttons %}{% endblock buttons %}
+    </br>
+    {% block script %}{% endblock script %}
+
+</body>
+{% endblock grid %}
+
+</html>
