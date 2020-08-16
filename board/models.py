@@ -305,339 +305,130 @@ class Board(models.Model):
             out += str(elem)
         return out
 
-
-"""
-V.1:node could be:
-    "xx"{"type":zz,"up":None,"down":None,"left":None,"right":None} #where xx is the id if the node
-
-    types:
-    -1:dead end
-    0:transfert
-    1:win_of_p1
-    2:win_of_p2 
-    3:draw
-
-"""
-# this will reduce the complexity of the structure by improving the way a defeat or win is stored
-"""
-V.2:future struct:
-"xx"{"data":[case of p1,case of p2],"up":None,"down":None,"left":None,"right":None}
-
-value algo:
-
-if my case > board.size/2:
-    consider this node as a win
-elif: ennemy case > board.size/2
-    consider this node as a loose
-elif: my case + ennemy case = board.size:
-    consider this a draw
-else:
-    ask child to get_rates()
-"""
-# other possible imrovement:
-"""
-V.3:scan board statut to make node interconnect (this will imrove the size of the tree but will make it realy heavier)
-"""
-
-
-class Tree:
-    def __init__(self):
-        if os.path.isfile('./tree.ia'):
-            print("tree loaded")
-            with open('./tree.ia', 'rb') as file:
-                self.nodes = pickle.load(file)
-        else:
-            print("tree could not be loaded,no 'tree.ia' provided")
-            self.nodes = {}
-            # self.nodes = {id:{"type":type,"up":None,"down":None,"left":None,"right":None}} #0 saved struct
-
-    def initiate(self, board):
-        parent_id = board.get_id()
-        if parent_id not in self.nodes:
-            self.nodes = {
-                parent_id: {"type": 0, "up": None, "down": None, "left": None, "right": None, "p1": 0, "p2": 0,
-                            "draw": 0}}
-        # print(self.nodes)
-
-    def save(self):
-        pickle.dump(self.nodes, open('./tree.ia', 'wb'))
-
-    def get_node(self, id):
-        return self.nodes[id]
-
-    def get_child_node_id(self, id, direction):
-        return self.nodes[id][direction]
-
-    def add_node(self, direction, current_board, current_player):
-
-        parent_id = current_board.get_id()
-
-        if direction in ["up", "down", "left", "right"] and not self.nodes[parent_id][direction]:
-
-            temp_board = copy.deepcopy(current_board)
-            temp_board.move(current_player, direction)
-
-            child_id = temp_board.get_id()
-
-            self.nodes[parent_id][direction] = child_id
-
-            if not child_id in self.nodes:
-                type = 0
-                if temp_board.end():
-                    type = temp_board.get_winner()
-
-                self.nodes[child_id] = {"type": type, "up": None, "down": None, "left": None, "right": None, "p1": 0,
-                                        "p2": 0, "draw": 0}  # creation of the newest node
-
-    def add_dead_end_node(self, direction, current_board):
-
-        parent_id = current_board.get_id()
-
-        if direction in ["up", "down", "left", "right"] and not self.nodes[parent_id][direction]:
-            self.nodes[parent_id][direction] = "-1"  # initiate a dead_end_node
-
-    def get_ways(self, id):
-        node = self.nodes[id]
-        ways = []
-
-        for direction in node:  # skips the type
-            if direction == "type":
-                continue
-
-            if node[direction] and node[direction] != "-1":
-                ways.append(node[direction])
-            elif not node[direction]:
-                ways.append(None)  # add an empty child (must be accounted)
-
-        return ways
-
-    def get_rates(self, id):
-        """ways = self.get_ways(id)
-        nb_ways = len(self.get_ways(id))
-        win_rate_1 = 0.
-        win_rate_2 = 0.
-        draw_rate = 0.
-        unknown_rate = 0.
-
-        if id in checked_nodes:
-            return win_rate_1,win_rate_2,draw_rate,unknown_rate
-
-        checked_nodes.append(id)
-
-
-        for child_id in ways:
-            if not child_id:
-                unknown_rate+=1
-            else:
-                child = self.nodes[child_id]
-                if child["type"] == 1:
-                    win_rate_1+=1
-                elif child["type"] == 2:
-                    win_rate_2+=1
-                elif child["type"] == 3:
-                    draw_rate+=1
-
-                elif child["type"] == 0:
-                    rates=self.get_rates(child_id,checked_nodes)
-                    win_rate_1+=rates[0]
-                    win_rate_2+=rates[1]
-                    draw_rate+=rates[2]
-                    unknown_rate+=rates[3]
-
-        return win_rate_1,win_rate_2,draw_rate,unknown_rate
-        """
-
-        current = self.nodes[id]
-
-        return current["p1"], current["p2"], current["draw"]
-
-    def Qfunction(self, current_id, direction, id):
-        return self.nodes[current_id][direction][:-4].count(str(id)) - current_id[:-4].count(str(id))
-
-    def get_move(self, parent_id, child_id):
-        for direction in self.nodes[parent_id]:
-            if direction == "type":
-                continue
-            if self.nodes[parent_id][direction] == child_id:
-                return direction
-
-    def add_value(self, path, winner):
-        trad_winner = {3: "draw", 1: "p1", 2: "p2"}
-        for node in path:
-            self.nodes[node][trad_winner[winner]] += 1
-
-
-class filler_AI:
-    def __init__(self):
-        self.tree = Tree()
-        self.checked_nodes = []  # will contain all the checked nodes, avoid recalculing done nodes
-
-    def fill(self, board_size):
-        board = Board(board_size)
-        self.tree.initiate(board)  # init the tree if needed
-
-        self.initiate_nodes(board, 1)  # initiate the first nodes
-
-        current_node_id = board.get_id()
-        self.checked_nodes.append(current_node_id)  # adds the node to the checked nodes
-
-        for direction in ["up", "down", "left", "right"]:
-
-            child_id = self.tree.nodes[current_node_id][direction]
-
-            if not child_id:  # if node doesn't exist, initate it (will be automaticly liked to the current node)
-
-                self.tree.add_node(direction, board, self.id)
-                child_id = self.tree.nodes[current_node_id][child_key]
-
-            if child_id == "-1":
-                continue
-
-            copy_board = copy.deepcopy(board)
-
-            self.inspect(copy_board, direction, 2)
-
-        # print(self.tree.nodes)
-
-    def inspect(self, board, direction, player_id):
-
-        board.move(player_id % 2 + 1, direction)  # move in the copy board
-
-        self.initiate_nodes(board, player_id)  # initiate the first nodes
-
-        current_node_id = board.get_id()
-        self.checked_nodes.append(current_node_id)  # adds the node to the checked nodes
-
-        for direction in ["up", "down", "left", "right"]:
-
-            child_id = self.tree.nodes[current_node_id][direction]
-
-            if not child_id:  # if node doesn't exist, initate it (will be automaticly liked to the current node)
-
-                self.tree.add_node(direction, board, self.id)
-                child_id = self.tree.nodes[current_node_id][child_key]
-
-            if child_id == "-1" or child_id in self.checked_nodes or not '0' in child_id[
-                                                                                0:board.size ** 2]:  # dead-end,already checked node,ended board.
-                continue
-
-            self.checked_nodes.append(child_id)  # now this node has been checked
-
-            copy_board = copy.deepcopy(board)
-
-            self.inspect(copy_board, direction, player_id % 2 + 1)
-
-    def initiate_nodes(self, board, id_to_add, move=None):  # id to add is the id for the nodes we are looking to add
-
-        temp_board = copy.deepcopy(board)  # lets copy the board to avoid changes
-
-        if move:
-            temp_board.move(id_to_add % 2 + 1, move)
-
-        current_node_id = temp_board.get_id()
-
-        for direction in ["up", "down", "left", "right"]:  # first, checks for the dead ends
-
-            if direction not in temp_board.get_moves(id_to_add) and not self.tree.nodes[current_node_id][direction]:
-                self.tree.add_dead_end_node(direction, temp_board)
-
-            elif not self.tree.nodes[current_node_id][direction]:
-                self.tree.add_node(direction, temp_board, id_to_add)
-
+    def get_reward(self, player_id):
+        reward = 0
+        for row in self.grid:
+            for entry in row:
+                if entry == player_id:
+                    reward += 1
+                else:
+                    reward -= 1
+        return reward
 
 class AI:
-    def __init__(self):
-        self.tree = Tree()
+    player = 0
+    transitions = []
+    discovery_rate = 1.0
+    learning_rate = 1.0
 
-    def start(self, id, mode, board):
-        self.id = id
-        self.mode = mode  # "game","learning"
-        self.path = []
+    def start(self, player_id, discovery_rate, board_size):
+        self.transitions = []
+        self.player = player_id
+        self.discovery_rate = discovery_rate
+        self.learning_rate = get_learning_rate(board_size)
 
-        if board.get_id() not in self.tree.nodes:  # makes sure the starting node is in the tree
-            self.tree.initiate(board)
+    def get_move(self, board):
+        # first, add the new transition
+        new_state = board.get_id()
+        index = len(self.transitions)
+        if index != 0:
+            transition = self.transitions[index - 1]
+            transition[1] = new_state
+            self.transitions[index - 1] = transition
 
-    def get_move(self, board, last_move=None):
+        # then, prepare the next transition
+        new_transition = [new_state, None]
+        self.transitions[index] = new_transition
 
-        board = copy.deepcopy(board)  # just for safety
+        # After, chose between discovery or Action
+        moves = board.get_moves(self.player)
+        if random.random() < self.discovery_rate:
+            # Discovery: Choose randomly between available moves
+            return moves[randrange(len(moves))]
 
-        current_node_id = board.get_id()
+        # Action: Retreive the reward for the available moves
+        best_move = None
+        worste_reward = None
+        for move in moves:
+            copy_board = copy.deepcopy(board)
+            copy_board.move(self.player, move)
+            new_id = copy_board.get_id()
+            state = get_state(new_id)
+            if state:
+                reward = state.get_reward()
+                if not worste_reward:
+                    worste_reward = reward
+                    best_move = move
+                elif reward < worste_reward:
+                    worste_reward = reward
+                    best_move = move
+        if not best_move:
+            best_move = moves[randrange(len(moves))]
+        return best_move
+        # Action: return the value with the LOWEST reward
+        # As we went the opposite side to have the baddest possible state
 
-        self.path.append(current_node_id)
+    def end(self, board):
+        # first, we finalise the transitions
+        last_state = board.get_id()
+        index = len(self.transitions)
+        transition = self.transitions[index - 1]
+        if transition[0] != last_state:
+            transition[1] = last_state
+            self.transitions[index - 1] = transition
+        else:
+            transitions = transitions[:-1]
 
-        self.initiate_nodes(board, self.id)
+            # then, we add the first reward.
+            state = get_state(last_state)
+            if not state:
+                state = State(last_state, board.size)
+                state.set_reward(board.get_reward())
+                state.save()
 
-        rates = {}
+        # after, we start to back spread.
+        for i in range(len(transitions) - 1, -1, -1):
+            transition = self.transitions[i]
+            previous_state = get_state(transition[0])
+            if not previous_state:
+                state = State(transition[0], board.size)
+            next_state = get_state(transition[1])
+            previous_state.value_function(self.learning_rate, next_state.get_reward())
+            previous_state.save()
+            # could be optimised by replacing next_state with previous state at the end of transaction
+            # instead of searching it throught the database
 
-        for child_key in self.tree.nodes[current_node_id]:
 
-            if child_key in ["type", "p1", "p2", "draw"]:  # skips type
-                continue
+class State:
+    state_id = ''
+    reward = 0
+    board_size = 0
 
-            child_id = self.tree.nodes[current_node_id][child_key]
+    def __init__(self, id, board_size):
+        self.state_id = id
+        self.board_size = board_size
 
-            if not child_id:  # if node doesn't exist, initate it (will be automaticly liked to the current node)
+    def get_reward(self):
+        return self.reward
 
-                self.tree.add_node(child_key, board, self.id)
-                child_id = self.tree.nodes[current_node_id][child_key]
+    def set_reward(self, reward):
+        self.reward = reward
 
-            elif child_id == "-1":
-                continue
+    def value_function(self, learning_rate, new_reward):
+        self.reward = self.reward + ((1 - learning_rate) * new_reward)
 
-            # print(child_id)
-            win_rate_1, win_rate_2, draw_rate = self.tree.get_rates(child_id)
 
-            # print("IA",self.id," ",child_id ,"(",child_key,"):",win_rate_1,",",win_rate_2,",",draw_rate)
-            rates[child_key] = [win_rate_1, win_rate_2, draw_rate]
+def get_state(id):
+    result = State.objects.filter(state_id=id)
+    if len(result) > 0:
+        return result[0]
+    return False
 
-        # should be put in a Vfunction()
 
-        values = {}
-        for child_dir in rates:
-            if self.id == 1:
-                values[child_dir] = self.tree.Qfunction(current_node_id, child_dir, self.id) * (
-                            (rates[child_dir][0] + 10) / (sum(rates[child_dir]) + 10))
-            else:
-                values[child_dir] = self.tree.Qfunction(current_node_id, child_dir, self.id) * (
-                            (rates[child_dir][1] + 10) / (sum(rates[child_dir]) + 10))
-
-        best_dir = next(iter(values))
-
-        for direction in values:
-            if values[best_dir] < values[direction]:
-                best_dir = direction
-
-        # print(best_dir)
-        # print(self.tree.nodes[current_node_id][best_dir])
-
-        self.path.append(self.tree.nodes[current_node_id][best_dir])
-
-        # initiate next possible nodes
-
-        self.initiate_nodes(board, (self.id % 2 + 1), best_dir)
-
-        return best_dir
-
-    def initiate_nodes(self, board, id_to_add, move=None):  # id to add is the id for the nodes we are looking to add
-
-        temp_board = copy.deepcopy(board)  # lets copy the board to avoid changes
-
-        if move:
-            temp_board.move(id_to_add % 2 + 1, move)
-
-        current_node_id = temp_board.get_id()
-
-        for direction in ["up", "down", "left", "right"]:  # first, checks for the dead ends
-
-            if direction not in temp_board.get_moves(id_to_add) and not self.tree.nodes[current_node_id][direction]:
-                self.tree.add_dead_end_node(direction, temp_board)
-
-            elif not self.tree.nodes[current_node_id][direction]:
-                self.tree.add_node(direction, temp_board, id_to_add)
-
-    def save(self, winner):
-        self.tree.add_value(self.path, winner)
-        self.tree.save()
+def get_learning_rate(board_size):
+    # this is an appriciation of a dynamic learning rate
+    # could be optimised by storing the number of created state for each board size
+    return len(State.objects.filter(board_size=board_size)) / ((board_size ** 2) ** 3)
 
 
 def dumbIA(board, id):
@@ -722,7 +513,6 @@ def start(size=4, playType=0, nb_train=1):  # only versus for now
         end = time.time()
         print(nb_train, "simulations runned for:", end - start)
         print(wins)
-
 
     elif playType == 3:  # AI VS AI
         start = time.time()
