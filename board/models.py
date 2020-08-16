@@ -36,10 +36,10 @@ class Player(models.Model):
     nickname = models.CharField(max_length=30)
     totalGames = models.IntegerField(null=True)
     isAI = models.BooleanField(default=True)
-    ai = models.ForeignKey('AI', null=True, related_name="AI", on_delete=models.CASCADE)
+    ai = models.ForeignKey('AI', related_name="AI", on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return self.nickname+' : totalGames='+str(self.totalGames)+', AI : '+str(self.isAI)
+        return self.nickname+' : totalGames='+str(self.totalGames)+', AI : '+str(self.isAI)+' - AI DESC : '+str(self.ai)
 
     def displayInfo(self):
         output = self.nickname
@@ -120,6 +120,8 @@ class Board(models.Model):
             output+="</table>"
             self.grid = grid
             self.save()
+            print(self.p1)
+            print(self.p2)
             return output
         else:
             #Faire fonction pour afficher le vainqueur et différentes options 
@@ -262,7 +264,8 @@ class Board(models.Model):
         else:
             return f"Les deux joueurs ({self.p1.nickname} et {self.p2.nickname}) sont ex-æquo !"
         
-        
+        self.p1.save()
+        self.p2.save()
         return output
 
     def get_moves(self, id):
@@ -336,13 +339,17 @@ class Board(models.Model):
         return reward
 
 class AI(models.Model):
-    player = 0
-    transitions = []
-    discovery_rate = 1.0
-    learning_rate = 1.0
+    player = models.IntegerField(null=True)
+    transitions = ArrayField(ArrayField(models.FloatField(null=True)), null=True)
+    discovery_rate = models.FloatField(null=True, default=1.0)
+    learning_rate = models.FloatField(null=True, default=1.0)
 
-    def start(self, player_id, discovery_rate, board_size):
-        self.transitions = []
+
+    def __str__(self):
+        return f"Player ID : {self.player} - DR : {self.discovery_rate} - LR : {self.learning_rate}"
+
+    def start(self, player_id, discovery_rate=1.0, board_size=4):
+        self.transitions[0][0] = 0
         self.player = player_id
         self.discovery_rate = discovery_rate
         self.learning_rate = get_learning_rate(board_size)
@@ -420,9 +427,9 @@ class AI(models.Model):
 
 
 class State(models.Model):
-    state_id = ''
-    reward = 0
-    board_size = 0
+    state_id = models.CharField(max_length=40, primary_key=True, default=-1)
+    reward = models.FloatField(null=True, default=0.0)
+    board_size = models.IntegerField(null=True, default=4)
 
     def __init__(self, id, board_size):
         self.state_id = id
@@ -456,121 +463,3 @@ def dumbIA(board, id):
     if moves == []:
         moves = board.get_moves(id)
     return moves[randrange(len(moves))]
-
-
-def start(size=4, playType=0, nb_train=1):  # only versus for now
-
-    if playType == 0:  # AI VS AI
-        player_turn = 1
-        board = Board(size)
-        board.print_board()  # to replaced with the display fonction
-        while not board.end():
-            order = input("Player %d, where do you want to move?" % player_turn)
-            while order not in board.get_moves(player_turn):
-                order = input("Wrong move Player %d, where do you want to move?" % player_turn)
-            board.move(player_turn, order)
-            board.print_board()
-            player_turn = player_turn % 2 + 1
-
-        print("the winner is Player %d!" % board.get_winner())  # will display 3 in case of draw
-
-    elif playType == 1:  # AI VS PLAYER
-        ai = AI()
-
-        player_turn = 2
-        board = Board(size)
-        ai.start(1, "learning", board)
-        board.print_board()  # to replaced with the display fonction
-        ai_order = ai.get_move(board, None)
-        board.move(1, ai_order)
-        board.print_board()
-
-        while not board.end():
-            order = input("Player %d, where do you want to move?" % player_turn)
-            while order not in board.get_moves(player_turn):
-                order = input("Wrong move Player %d, where do you want to move?" % player_turn)
-            board.move(player_turn, order)
-            board.print_board()
-            # ai_turn (only if theire is still moves to do)
-            if not board.end():
-                ai_order = ai.get_move(board, order)
-                board.move(1, ai_order)
-                board.print_board()
-
-        ai.save(board.get_winner())
-
-        print(ai.tree.nodes[x] for x in ai.tree.nodes)
-        print("the winner is Player %d!" % board.get_winner())  # will display 3 in case of draw
-
-    elif playType == 2:  # AI VS DUMB AI
-        start = time.time()
-        wins = {1: 0, 2: 0, 3: 0}
-        ai = AI()
-
-        for i in range(nb_train):
-            print("Game ", i)
-            board = Board(size)
-            ai.start(1, "game", board)
-            ai_order = ai.get_move(board, None)
-            board.move(1, ai_order)
-
-            while not board.end():
-                order = dumbIA(board, 2)
-                board.move(2, order)
-                # ai_turn (only if theire is still mives to do)
-                if not board.end():
-                    ai_order = ai.get_move(board, order)
-                    board.move(1, ai_order)
-
-            ai.save(board.get_winner())
-
-            board.print_board()
-
-            print(ai.tree.nodes[x] for x in ai.tree.nodes)
-            print("the winner is Player %d!" % board.get_winner())  # will display 3 in case of draw
-            wins[board.get_winner()] += 1
-
-        end = time.time()
-        print(nb_train, "simulations runned for:", end - start)
-        print(wins)
-
-    elif playType == 3:  # AI VS AI
-        start = time.time()
-        wins = {1: 0, 2: 0, 3: 0}
-
-        # avoid loading the tree every time
-        ai = AI()
-        ai2 = AI()
-
-        for i in range(nb_train):
-            print("Game ", i)
-            ai.start(1, "game")
-            ai2.start(2, "game")
-            board = Board(size)
-            ai_order = ai.get_move(board, None)
-            board.move(1, ai_order)
-
-            while not board.end():
-                ai2_order = ai2.get_move(board, ai_order)
-                board.move(2, ai2_order)
-                # ai_turn (only if theire is still mives to do)
-                if not board.end():
-                    ai_order = ai.get_move(board, ai2_order)
-                    board.move(1, ai_order)
-                else:
-                    print(ai2_order)
-                    ai.set_defeat(board, ai2_order)
-
-            ai.save()
-
-            # no need to save ai2, ai learns for both p1 and p2
-
-            board.print_board()
-
-            print(ai.tree.nodes[x] for x in ai.tree.nodes)
-            print("the winner is Player %d!" % board.get_winner())  # will display 3 in case of draw
-            wins[board.get_winner()] += 1
-
-        end = time.time()
-        print(nb_train, "simulations runned for:", end - start)
-        print(wins)
