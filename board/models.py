@@ -36,6 +36,7 @@ class Player(models.Model):
     nickname = models.CharField(max_length=30)
     totalGames = models.IntegerField(null=True)
     isAI = models.BooleanField(default=True)
+    ai = models.ForeignKey('AI', null=True, related_name="AI", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nickname+' : totalGames='+str(self.totalGames)+', AI : '+str(self.isAI)
@@ -334,7 +335,7 @@ class Board(models.Model):
                     reward -= 1
         return reward
 
-class AI:
+class AI(models.Model):
     player = 0
     transitions = []
     discovery_rate = 1.0
@@ -418,7 +419,7 @@ class AI:
             # instead of searching it throught the database
 
 
-class State:
+class State(models.Model):
     state_id = ''
     reward = 0
     board_size = 0
