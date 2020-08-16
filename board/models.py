@@ -123,7 +123,10 @@ class Board(models.Model):
         else:
             #Faire fonction pour afficher le vainqueur et différentes options 
             #Nécessite sûrement une nouvelle vue avec redirection lorsque le jeu est fini
-            return "<p>Le match est terminé ! Veuillez réinitialiser le jeu !</p>"
+            winner = str(self.get_winner())
+
+
+            return "<p>Le match est terminé ! " + self.get_winner_name(str(self.get_winner())) + "</p>"
             
             
              
@@ -244,6 +247,22 @@ class Board(models.Model):
             return 2
         else:
             return 3
+    
+    def get_winner_name(self, winner):
+        self.p1.totalGames += 1
+        self.p2.totalGames += 1
+
+        print("PLAYER : " + str(winner))
+        output = "La victoire revient à "
+        if(int(winner) == 1):
+            output += self.p1.nickname
+        elif(int(winner) == 2):
+            output += self.p2.nickname
+        else:
+            return f"Les deux joueurs ({self.p1.nickname} et {self.p2.nickname}) sont ex-æquo !"
+        
+        
+        return output
 
     def get_moves(self, id):
         output = []

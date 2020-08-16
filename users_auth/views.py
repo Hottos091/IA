@@ -12,10 +12,12 @@ def register(request):
       print("Form is valid")
 
       nickname = form.cleaned_data.get('nickname')
-      player_type = form.cleaned_data.get('player-type')
+      player_type = form.cleaned_data.get('player_type')
 
+      print("(str)Player TYPE : " + str(player_type))
+      print("Type Player TYPE : " + str(type(player_type)))
       new_player = Player(nickname=nickname, totalGames=0)
-      if player_type == "ai":
+      if player_type == "2":
         new_player.isAI = True
       else:
         new_player.isAI = False

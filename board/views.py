@@ -19,6 +19,8 @@ def resetGame(request):
 def game(request):
 	board = Board.objects.get(name="game")
 
+	print(f"Player 1 : {board.p1} - Player 2 : {board.p2}")
+
 	return render(request, 'board/test.html', {'grid': board.print_board(), 'nbTurns': board.nbTurns})
 
 def moveDown(request, id):
@@ -49,27 +51,23 @@ def settings(request):
     form = PlayersChoiceForm(request.POST)
 
     if form.is_valid():
-      print("Form is valid")
-
       p1 = form.cleaned_data.get('p1')
       p2 = form.cleaned_data.get('p2')
 
       print("p1 : " + str(p1))
       print("p2 : " + str(p2))
 
-      print("Before if")
       
       if p1 == p2:
-        messages.success(request, 'CANT PLAY WITH BOTH SAME PLAYER')
+        messages.success(request, 'You cannot play with both the same player')
         return redirect('home')
       else:
-        print("Entrée dans le else")
         board = Board.objects.get(name="game")
         
         board.p1 = p1
         board.p2 = p2
 
-        print("Game(request)")
+        board.save()
         return game(request)
   else: 
     form = PlayersChoiceForm()

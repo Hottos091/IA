@@ -1,9 +1,8 @@
 from django.contrib import admin
 
-from .models import Board, Log, Tree, filler_AI, AI
+from .models import Board, AI, Player, State
 
 admin.site.register(Board)
-admin.site.register(Log)
 
 
 # Register your models here.
