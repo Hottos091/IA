@@ -363,7 +363,7 @@ class AI(models.Model):
 
         # then, prepare the next transition
         new_transition = [new_state, None]
-        self.transitions[index] = new_transition
+        self.transitions.append(new_transition)
 
         # After, chose between discovery or Action
         moves = board.get_moves(self.player)
