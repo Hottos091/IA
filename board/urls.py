@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     path('home', views.home, name='home'),
-    path('game', views.settings, name='game'),
+    path('game', views.game, name='game'),
+    path('game/settings', views.settings, name='settings'),
     path('moveUp/<int:id>', views.moveUp, name='moveUp'),
     path('moveDown/<int:id>', views.moveDown, name='moveDown'),
     path('moveLeft/<int:id>', views.moveLeft, name='moveLeft'),

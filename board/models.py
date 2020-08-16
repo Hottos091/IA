@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django import template
 from random import randrange
+from django.contrib import messages
+from django.shortcuts import redirect
+from datetime import date
 import numpy as np
 import pickle
 import os
@@ -124,10 +127,24 @@ class Board(models.Model):
             print(self.p2)
             return output
         else:
-            return "<p>Le match est terminé ! " + self.get_winner_name(str(self.get_winner())) + "</p>"
+            return self.endgame()
             
             
-             
+    def endgame(self):
+        if(self.p1.isAI):
+            self.p1.ai.end(self)
+            self.p1.ai.save()
+            self.p1.save()
+        if(self.p2.isAI):
+            self.p2.ai.end(self)
+            self.p2.ai.save()
+            self.p2.save()
+        
+        self.name = self.p1.nickname + self.p2.nickname + str(date.today)
+        self.save()
+
+        return redirect('home')
+
     def move(self, id, direction):
 
         if not direction in self.get_moves(id):

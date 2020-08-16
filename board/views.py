@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from board.models import Board, Player
 from .forms import PlayersChoiceForm
 from django.contrib import messages
+import time
 
 
 def home(request):
@@ -17,8 +18,6 @@ def resetGame(request):
     board.save()
 
     return redirect('/board/game')
-
-
 def game(request):
     board = Board.objects.get(name="game")
 
@@ -33,12 +32,17 @@ def game(request):
     if isCurrentPlayerAI:
         best_ai_move = currentPlayer.ai.get_move(board)
         print("===============BEST MOVE================ : " +str(best_ai_move))
-
-
+        board.move(currentPlayerId, str(best_ai_move))
+        time.sleep(0.5)
+        
 
     print(f"Player 1 : {board.p1} - Player 2 : {board.p2}")
 
     return render(request, 'board/test.html', {'grid': board.print_board(), 'nbTurns': board.nbTurns})
+        
+
+
+
 
 
 def moveDown(request, id):
@@ -100,7 +104,7 @@ def settings(request):
             board.p1 = p1
             board.p2 = p2
             board.save()
-            return game(request)
+            return redirect('game')
     else:
         form = PlayersChoiceForm()
         return render(request, 'users_auth/register.html', {'form': form})
