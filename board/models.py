@@ -124,11 +124,6 @@ class Board(models.Model):
             print(self.p2)
             return output
         else:
-            #Faire fonction pour afficher le vainqueur et différentes options 
-            #Nécessite sûrement une nouvelle vue avec redirection lorsque le jeu est fini
-            winner = str(self.get_winner())
-
-
             return "<p>Le match est terminé ! " + self.get_winner_name(str(self.get_winner())) + "</p>"
             
             
