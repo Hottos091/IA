@@ -349,7 +349,7 @@ class AI(models.Model):
         return f"Player ID : {self.player} - DR : {self.discovery_rate} - LR : {self.learning_rate}"
 
     def start(self, player_id, discovery_rate=1.0, board_size=4):
-        self.transitions[0][0] = 0
+        self.transitions = []
         self.player = player_id
         self.discovery_rate = discovery_rate
         self.learning_rate = get_learning_rate(board_size)
@@ -357,6 +357,9 @@ class AI(models.Model):
     def get_move(self, board):
         # first, add the new transition
         new_state = board.get_id()
+        if not self.transitions:
+            self.transitions = []
+            #this is used cause of django giving a null for an empty list
         index = len(self.transitions)
         if index != 0:
             transition = self.transitions[index - 1]
