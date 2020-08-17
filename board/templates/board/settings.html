@@ -10,7 +10,7 @@
             {{ form }}
         </table>
         {% if messages %}
-        <div class="messages">
+        <div class="messages error">
             {% for message in messages %}
             <i {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</i>
             {% endfor %}

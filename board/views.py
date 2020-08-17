@@ -7,7 +7,7 @@ import time
 
 
 def home(request):
-    return render(request, 'board/date.html')
+    return render(request, 'board/home.html')
 
 
 def resetGame(request):

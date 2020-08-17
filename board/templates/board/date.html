@@ -1,8 +1,0 @@
-{% extends "base_auth.html" %} {% block html_body %}
-<h1>Bienvenue sur le site du projet !</h1>
-
-{% if messages %} {% for message in messages %}
-<div class "alert alert-{{ message.tags }}">
-    {{ message }}
-</div>
-{% endfor %} {% endif %} {% endblock html_body %}
