@@ -45,11 +45,6 @@ class Player(models.Model):
     def __str__(self):
         return self.nickname+' : totalGames='+str(self.totalGames)+', AI : '+str(self.isAI)+' - AI DESC : '+str(self.ai)
 
-    def displayInfo(self):
-        output = self.nickname
-        if self.isAI:
-            output += " (AI)"
-
 
 class Board(models.Model):
     name = models.CharField(max_length=150)
@@ -64,7 +59,7 @@ class Board(models.Model):
     def __str__(self):
         return self.name+'('+str(self.size)+')'
 
-    def createAndInitBoard(name, size):
+    def create_and_init_board(name, size):
         board = Board()
         board.name = name
         board.size = size
@@ -105,10 +100,10 @@ class Board(models.Model):
                 for entry in row:
                     output += "<td"
                     if[row_id, col_id] in [self.pos1]:
-                        self.grid[row_id][col_id]=1
+                        self.grid[row_id][col_id] = 1
                         entry = 1
                     elif[row_id, col_id] in [self.pos2]:
-                        self.grid[row_id][col_id]=2
+                        self.grid[row_id][col_id] = 2
                         entry = 2
                     if entry == 1:
                         output += " class='joueur1'>"
@@ -150,7 +145,6 @@ class Board(models.Model):
             raise Exception("invalid direction given")
         directions = {"up": [-1, 0], "down": [1, 0], "left": [0, -1], "right": [0, 1]}
 
-        new_pos = 0  # initiate variable out of scope
         if id == 1:
             self.pos1 = [self.pos1[0] + directions[direction][0], self.pos1[1] + directions[direction][1]]
             self.grid[self.pos1[0]][self.pos1[1]] = id
@@ -215,17 +209,15 @@ class Board(models.Model):
         open_set = [start]
         closed_set = []
 
-        while open_set != []:
+        while open_set:
             current = get_lowest(open_set)
-            if (current[0] == goal[0] and current[1] == goal[1]) or self.grid[current[0]][current[1]] not in [0,
-                                                                                                              id]:  # look if arrived at destination or reach other player's territory
+            if (current[0] == goal[0] and current[1] == goal[1]) or self.grid[current[0]][current[1]] not in [0, id]:  # look if arrived at destination or reach other player's territory
                 return False, []  # found the target, not captured
 
             open_set.remove(current)
             closed_set.append(current)
             for node in self.get_neighbors(current):
-                if get_twin_node(node, closed_set)[0] != -1 or self.grid[node[0]][
-                    node[1]] == id:  # skips, innacssible squarres and already checkeds ones
+                if get_twin_node(node, closed_set)[0] != -1 or self.grid[node[0]][node[1]] == id:  # skips, innacssible squarres and already checkeds ones
                     continue
                 current_G = current[2] + 1
 
@@ -268,9 +260,9 @@ class Board(models.Model):
 
         print("PLAYER : " + str(winner))
         output = "La victoire revient à "
-        if(int(winner) == 1):
+        if int(winner) == 1:
             output += self.p1.nickname
-        elif(int(winner) == 2):
+        elif int(winner) == 2:
             output += self.p2.nickname
         else:
             return f"Les deux joueurs ({self.p1.nickname} et {self.p2.nickname}) sont ex-æquo !"

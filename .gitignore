@@ -1,2 +1,3 @@
 *.pyc
-djangoIA/settings.py
+./djangoIA/settings.py
+*/migrations/*

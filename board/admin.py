@@ -7,6 +7,4 @@ admin.site.register(AI)
 admin.site.register(Player)
 admin.site.register(State)
 
-
-
 # Register your models here.

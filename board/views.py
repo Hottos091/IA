@@ -14,7 +14,7 @@ def resetGame(request):
     board = Board.objects.get(name="game")
     board.delete()
 
-    board = Board.createAndInitBoard("game", 4)
+    board = Board.create_and_init_board("game", 4)
     board.save()
 
     return redirect('/board/game')
@@ -22,7 +22,7 @@ def resetGame(request):
 def game(request):
     board_set = Board.objects.filter(name="game")
     if len(board_set) < 1:
-        board = Board.createAndInitBoard("game", 4)
+        board = Board.create_and_init_board("game", 4)
         board.save()
         return redirect('/board/home')
     else:
@@ -104,7 +104,7 @@ def settings(request):
 
             board_set = Board.objects.filter(name="game")
             if len(board_set) < 1:
-                board = Board.createAndInitBoard("game", 4)
+                board = Board.create_and_init_board("game", 4)
                 board.save()
             else:
                 board = board_set[0]
