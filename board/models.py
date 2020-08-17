@@ -327,7 +327,10 @@ class Board(models.Model):
         if self.is_in_grid(temp_pos) and self.grid[temp_pos[0]][temp_pos[1]] in [0]:
             output += ["right"]
 
-        return output
+        if output:
+            return output
+        else:
+            return self.get_moves(id)
 
     def get_id(self):
         out = ""
@@ -359,7 +362,7 @@ class AI(models.Model):
     def __str__(self):
         return f"Player ID : {self.player} - DR : {self.discovery_rate} - LR : {self.learning_rate}"
 
-    def start(self, player_id, discovery_rate=1.0, board_size=4):
+    def start(self, player_id, discovery_rate=0.5, board_size=4):
         self.transitions = []
         self.player = player_id
         self.discovery_rate = discovery_rate
@@ -383,9 +386,11 @@ class AI(models.Model):
 
         # After, chose between discovery or Action
         moves = board.get_moves(self.player)
+
         if random.random() < self.discovery_rate:
             # Discovery: Choose randomly between available moves
             self.save()
+            moves = board.get_intresting_moves(self.player)
             return moves[randrange(len(moves))]
 
         # Action: Retreive the reward for the available moves
@@ -405,6 +410,7 @@ class AI(models.Model):
                     worste_reward = reward
                     best_move = move
         if not best_move:
+            moves = board.get_intresting_moves(self.player)
             best_move = moves[randrange(len(moves))]
         self.save()
         return best_move
