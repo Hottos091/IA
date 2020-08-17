@@ -115,4 +115,4 @@ def settings(request):
             return redirect('game')
     else:
         form = PlayersChoiceForm()
-        return render(request, 'users_auth/register.html', {'form': form})
+        return render(request, 'board/settings.html', {'form': form})

@@ -4,13 +4,13 @@
     <form method="POST">
         {% csrf_token %}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Choose the 2 players now !</legend>
+            <legend class="border-bottom mb-4">Choose 2 players to start</legend>
         </fieldset>
         <table border=1>
             {{ form }}
         </table>
         <div class="form-group">
-            <button class="btn btn-outline-info" type="submit">Start game !</button>
+            <button class="btn btn-outline-info" type="submit">Start game</button>
         </div>
     </form>
 </div>
