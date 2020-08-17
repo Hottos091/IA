@@ -56,6 +56,7 @@ class Board(models.Model):
     p1 = models.ForeignKey('Player', related_name="player1", null=True, on_delete=models.CASCADE)
     p2 = models.ForeignKey('Player', related_name="player2", null=True, on_delete=models.CASCADE)
     nbTurns = models.IntegerField(null=True)
+    date = models.DateTimeField(null=True)
     
     def __str__(self):
         return self.name+'('+str(self.size)+')'
@@ -143,7 +144,9 @@ class Board(models.Model):
         self.p1.save()
         self.p2.save()
         
-        self.name = ' '.join([self.p1.nickname, self.p2.nickname, str(date.today()), str(datetime.datetime.now())])
+        date = datetime.datetime.now()
+        self.date = date
+        self.name = ' '.join([self.p1.nickname, self.p2.nickname, str(date)])
 
         self.save()
 

@@ -26,7 +26,7 @@ def resetGame(request):
 def game(request):
     board_set = Board.objects.filter(name="game")
     if len(board_set) < 1:
-        last_board = Board.objects.all()[len(Board.objects.all())-1]
+        last_board = Board.objects.latest('date')
         board = Board.create_and_init_board("game", 4)
         board.save()
         messages.success(request, last_board.get_winner_name())
