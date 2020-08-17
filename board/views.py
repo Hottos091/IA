@@ -18,31 +18,34 @@ def resetGame(request):
     board.save()
 
     return redirect('/board/game')
+
 def game(request):
-    board = Board.objects.get(name="game")
+    board_set = Board.objects.filter(name="game")
+    if len(board_set) < 1:
+        board = Board.createAndInitBoard("game", 4)
+        board.save()
+        return redirect('/board/home')
+    else:
+        board = board_set[0]
 
-    currentPlayerId = board.nbTurns%2 + 1
-    if currentPlayerId == 1:
-        currentPlayer = board.p1
-        isCurrentPlayerAI = board.p1.isAI
-    else: 
-        currentPlayer = board.p2
-        isCurrentPlayerAI = board.p2.isAI
+    if board.p1 and board.p2:
+        currentPlayerId = board.nbTurns%2 + 1
+        if currentPlayerId == 1:
+            currentPlayer = board.p1
+            isCurrentPlayerAI = board.p1.isAI
+        else:
+            currentPlayer = board.p2
+            isCurrentPlayerAI = board.p2.isAI
 
-    if isCurrentPlayerAI:
-        best_ai_move = currentPlayer.ai.get_move(board)
-        print("===============BEST MOVE================ : " +str(best_ai_move))
-        board.move(currentPlayerId, str(best_ai_move))
-        time.sleep(0.5)
-        
+        if isCurrentPlayerAI:
+            best_ai_move = currentPlayer.ai.get_move(board)
+            print("===============BEST MOVE================ : " + str(best_ai_move))
+            board.move(currentPlayerId, str(best_ai_move))
+            time.sleep(0.5)
 
-    print(f"Player 1 : {board.p1} - Player 2 : {board.p2}")
+        print(f"Player 1 : {board.p1} - Player 2 : {board.p2}")
 
     return render(request, 'board/test.html', {'grid': board.print_board(), 'nbTurns': board.nbTurns})
-        
-
-
-
 
 
 def moveDown(request, id):
@@ -88,18 +91,23 @@ def settings(request):
             else:
                 if(p1.isAI):
                     print("P1 AI is starting...")
-                    p1.ai.player = 1
+                    p1.ai.start(1)
                     p1.ai.save()
                     p1.save()
                     print("Started.")
                 if(p2.isAI):
                     print("P2 AI is starting...")
-                    p2.ai.player = 2
+                    p2.ai.start(2)
                     p2.ai.save()
                     p2.save()
                     print("Started.")
 
-            board = Board.objects.get(name="game")
+            board_set = Board.objects.filter(name="game")
+            if len(board_set) < 1:
+                board = Board.createAndInitBoard("game", 4)
+                board.save()
+            else:
+                board = board_set[0]
 
             board.p1 = p1
             board.p2 = p2

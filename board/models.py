@@ -13,7 +13,6 @@ import time
 import random
 
 
-
 def get_lowest(open_set):
     lowest = open_set[0]
     for node in open_set[1:]:
@@ -26,7 +25,8 @@ def get_twin_node(match,set):
     for node in set:
         if node[0] == match[0] and node[1] == match[1]:
             return node
-    return [-1,0,999999,99999] #set to inf inf don't exist, theorical max = 13 for 8x8
+    return [-1, 0, 999999, 99999]  # set to inf inf don't exist, theorical max = 13 for 8x8
+
 
 class Log(models.Model):
     id = models.AutoField(primary_key=True)
@@ -34,6 +34,7 @@ class Log(models.Model):
 
     def __str__(self):
         return self.details
+
 
 class Player(models.Model):
     nickname = models.CharField(max_length=30)
@@ -47,10 +48,11 @@ class Player(models.Model):
     def displayInfo(self):
         output = self.nickname
         if self.isAI:
-            output+= " (AI)"
+            output += " (AI)"
+
 
 class Board(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=150)
     size = models.IntegerField(null=True)
     grid = ArrayField(ArrayField(models.IntegerField(null=True)), null=True)
     pos1 = ArrayField(models.IntegerField(null=True), null=True)
@@ -69,8 +71,8 @@ class Board(models.Model):
         board.grid = [[0 for i in range(board.size)]for j in range(board.size)]
         board.grid[0][0] = 1
         board.grid[board.size-1][board.size-1] = 2
-        board.pos1 = [0,0]
-        board.pos2 = [board.size-1,board.size-1]
+        board.pos1 = [0, 0]
+        board.pos2 = [board.size-1, board.size-1]
         board.nbTurns = 0
         return board
 
@@ -98,29 +100,29 @@ class Board(models.Model):
             output = "<table align='center'>"
             grid = self.grid
             for row in self.grid:
-                output+="<tr>"
+                output += "<tr>"
                 col_id = 0
                 for entry in row:
-                    output+="<td"
-                    if([row_id, col_id] in [self.pos1]):
+                    output += "<td"
+                    if[row_id, col_id] in [self.pos1]:
                         self.grid[row_id][col_id]=1
-                        entry=1
-                    elif([row_id, col_id] in [self.pos2]):
+                        entry = 1
+                    elif[row_id, col_id] in [self.pos2]:
                         self.grid[row_id][col_id]=2
-                        entry=2
+                        entry = 2
                     if entry == 1:
-                        output+= " class='joueur1'>"
-                    elif entry ==2:
-                        output+= " class='joueur2'>"
+                        output += " class='joueur1'>"
+                    elif entry == 2:
+                        output += " class='joueur2'>"
                     else:
                         output += ">"
-                    if([row_id, col_id] in [self.pos1, self.pos2]):
-                        output+= "|0|"
-                    col_id+=1
-                    output+="</td>"
-                output+="</tr>"
-                row_id+=1
-            output+="</table>"
+                    if[row_id, col_id] in [self.pos1, self.pos2]:
+                        output += "|0|"
+                    col_id += 1
+                    output += "</td>"
+                output += "</tr>"
+                row_id += 1
+            output += "</table>"
             self.grid = grid
             self.save()
             print(self.p1)
@@ -128,26 +130,23 @@ class Board(models.Model):
             return output
         else:
             return self.endgame()
-            
-            
+
     def endgame(self):
-        if(self.p1.isAI):
+        if self.p1.isAI:
             self.p1.ai.end(self)
             self.p1.ai.save()
             self.p1.save()
-        if(self.p2.isAI):
+        if self.p2.isAI:
             self.p2.ai.end(self)
             self.p2.ai.save()
             self.p2.save()
         
-        self.name = self.p1.nickname + self.p2.nickname + str(date.today)
+        self.name = ' '.join([self.p1.nickname, self.p2.nickname, str(date.today())])
         self.save()
-
-        return redirect('home')
 
     def move(self, id, direction):
 
-        if not direction in self.get_moves(id):
+        if direction not in self.get_moves(id):
             raise Exception("invalid direction given")
         directions = {"up": [-1, 0], "down": [1, 0], "left": [0, -1], "right": [0, 1]}
 
@@ -350,12 +349,12 @@ class Board(models.Model):
                     reward -= 1
         return reward
 
+
 class AI(models.Model):
     player = models.IntegerField(null=True)
-    transitions = ArrayField(ArrayField(models.FloatField(null=True)), null=True)
+    transitions = ArrayField(ArrayField(models.CharField(null=True, max_length=150)), null=True)
     discovery_rate = models.FloatField(null=True, default=1.0)
     learning_rate = models.FloatField(null=True, default=1.0)
-
 
     def __str__(self):
         return f"Player ID : {self.player} - DR : {self.discovery_rate} - LR : {self.learning_rate}"
@@ -371,7 +370,7 @@ class AI(models.Model):
         new_state = board.get_id()
         if not self.transitions:
             self.transitions = []
-            #this is used cause of django giving a null for an empty list
+            # this is used cause of django giving a null for an empty list
         index = len(self.transitions)
         if index != 0:
             transition = self.transitions[index - 1]
@@ -386,6 +385,7 @@ class AI(models.Model):
         moves = board.get_moves(self.player)
         if random.random() < self.discovery_rate:
             # Discovery: Choose randomly between available moves
+            self.save()
             return moves[randrange(len(moves))]
 
         # Action: Retreive the reward for the available moves
@@ -406,49 +406,42 @@ class AI(models.Model):
                     best_move = move
         if not best_move:
             best_move = moves[randrange(len(moves))]
+        self.save()
         return best_move
         # Action: return the value with the LOWEST reward
         # As we went the opposite side to have the baddest possible state
 
     def end(self, board):
         # first, we finalise the transitions
-        last_state = board.get_id()
+        self.transitions = self.transitions[:-1]
         index = len(self.transitions)
         transition = self.transitions[index - 1]
-        if transition[0] != last_state:
-            transition[1] = last_state
-            self.transitions[index - 1] = transition
-        else:
-            transitions = transitions[:-1]
+        last_state = transition[1]
 
-            # then, we add the first reward.
-            state = get_state(last_state)
-            if not state:
-                state = State(last_state, board.size)
-                state.set_reward(board.get_reward())
-                state.save()
+        # then, we add the first reward.
+        state = get_state(last_state)
+        if not state:
+            state = State(state_id=last_state, board_size=board.size)
+            state.set_reward(board.get_reward(self.player))
+            state.save()
 
         # after, we start to back spread.
-        for i in range(len(transitions) - 1, -1, -1):
+        for i in range(len(self.transitions) - 1, -1, -1):
             transition = self.transitions[i]
             previous_state = get_state(transition[0])
             if not previous_state:
-                state = State(transition[0], board.size)
+                previous_state = State(state_id=transition[0], board_size=board.size)
             next_state = get_state(transition[1])
             previous_state.value_function(self.learning_rate, next_state.get_reward())
             previous_state.save()
             # could be optimised by replacing next_state with previous state at the end of transaction
-            # instead of searching it throught the database
+            # instead of searching it in the database
 
 
 class State(models.Model):
     state_id = models.CharField(max_length=40, primary_key=True, default=-1)
     reward = models.FloatField(null=True, default=0.0)
     board_size = models.IntegerField(null=True, default=4)
-
-    def __init__(self, id, board_size):
-        self.state_id = id
-        self.board_size = board_size
 
     def get_reward(self):
         return self.reward
@@ -457,7 +450,7 @@ class State(models.Model):
         self.reward = reward
 
     def value_function(self, learning_rate, new_reward):
-        self.reward = self.reward + ((1 - learning_rate) * new_reward)
+        self.reward = self.reward + (learning_rate * new_reward)
 
 
 def get_state(id):
@@ -468,13 +461,13 @@ def get_state(id):
 
 
 def get_learning_rate(board_size):
-    # this is an appriciation of a dynamic learning rate
+    # this is an appreciation of a dynamic learning rate
     # could be optimised by storing the number of created state for each board size
     return len(State.objects.filter(board_size=board_size)) / ((board_size ** 2) ** 3)
 
 
 def dumbIA(board, id):
     moves = board.get_intresting_moves(id)
-    if moves == []:
+    if not moves:
         moves = board.get_moves(id)
     return moves[randrange(len(moves))]
