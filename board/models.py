@@ -417,27 +417,26 @@ class AI(models.Model):
         last_state = transition[1]
 
         # then, we add the first reward.
-        state = get_state(last_state)
-        if not state:
-            state = State(state_id=last_state, board_size=board.size)
-            state.set_reward(board.get_reward(self.player))
-            state.save()
+        final_state = get_state(last_state)
+        if not final_state:
+            final_state = State(state_id=last_state, board_size=board.size)
+            final_state.set_reward(board.get_reward(self.player))
+            final_state.save()
 
+        next_state = final_state
         # after, we start to back spread.
         for i in range(len(self.transitions) - 1, -1, -1):
             transition = self.transitions[i]
             previous_state = get_state(transition[0])
             if not previous_state:
                 previous_state = State(state_id=transition[0], board_size=board.size)
-            next_state = get_state(transition[1])
             previous_state.value_function(self.learning_rate, next_state.get_reward())
             previous_state.save()
-            # could be optimised by replacing next_state with previous state at the end of transaction
-            # instead of searching it in the database
+            next_state = previous_state
 
 
 class State(models.Model):
-    state_id = models.CharField(max_length=40, primary_key=True, default=-1)
+    state_id = models.CharField(max_length=150, primary_key=True, default=-1)
     reward = models.FloatField(null=True, default=0.0)
     board_size = models.IntegerField(null=True, default=4)
 
