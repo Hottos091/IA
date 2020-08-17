@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('board/', include('board.urls')),
     path('register/', users_auth_views.register, name="register"),
+    path('edit/', users_auth_views.edit, name="edit"),
 ]

@@ -5,11 +5,12 @@ from random import randrange
 from django.contrib import messages
 from django.shortcuts import redirect
 from datetime import date
+import datetime
 import numpy as np
 import pickle
+import time
 import os
 import copy
-import time
 import random
 
 
@@ -127,19 +128,23 @@ class Board(models.Model):
             print(self.p2)
             return output
         else:
-            return self.endgame()
+            return self.end_game()
 
-    def endgame(self):
+    def end_game(self):
+        self.p1.totalGames += 1
+        self.p2.totalGames += 1
         if self.p1.isAI:
             self.p1.ai.end(self)
             self.p1.ai.save()
-            self.p1.save()
         if self.p2.isAI:
             self.p2.ai.end(self)
             self.p2.ai.save()
-            self.p2.save()
+
+        self.p1.save()
+        self.p2.save()
         
-        self.name = ' '.join([self.p1.nickname, self.p2.nickname, str(date.today())])
+        self.name = ' '.join([self.p1.nickname, self.p2.nickname, str(date.today()), str(datetime.datetime.now())])
+
         self.save()
 
     def move(self, id, direction):
@@ -257,9 +262,8 @@ class Board(models.Model):
         else:
             return 3
     
-    def get_winner_name(self, winner):
-        self.p1.totalGames += 1
-        self.p2.totalGames += 1
+    def get_winner_name(self):
+        winner = self.get_winner()
 
         print("PLAYER : " + str(winner))
         output = "La victoire revient à "
@@ -268,7 +272,7 @@ class Board(models.Model):
         elif int(winner) == 2:
             output += self.p2.nickname
         else:
-            return f"Les deux joueurs ({self.p1.nickname} et {self.p2.nickname}) sont ex-æquo !"
+            output = f"Les deux joueurs ({self.p1.nickname} et {self.p2.nickname}) sont ex-æquo !"
         
         self.p1.save()
         self.p2.save()

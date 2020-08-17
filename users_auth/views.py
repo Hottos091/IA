@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import NewPlayerForm
+from .forms import NewPlayerForm, EditPlayerForm
 from django.contrib import messages
 from board.models import Player, AI
 
@@ -24,7 +24,6 @@ def register(request):
                 new_player.isAI = True
                 new_player.ai = ai
 
-                new_player.ai.save()
                 new_player.save()
             else:
                 new_player.isAI = False
@@ -38,3 +37,37 @@ def register(request):
     else:
         form = NewPlayerForm()
     return render(request, 'users_auth/register.html', {'form': form})
+
+def edit(request):
+    if request.method == 'POST':
+        form = EditPlayerForm(request.POST)
+
+        if form.is_valid():
+            updated_player = form.cleaned_data.get('players')
+            updated_player.nickname = form.cleaned_data.get('new_nickname')
+            
+            new_player_type = form.cleaned_data.get('new_player_type')
+            if new_player_type == "2":
+                ai = AI()
+                ai.start(2)
+                ai.save()
+
+                if(updated_player.isAI == False):
+                    updated_player.isAI = True
+                    updated_player.ai = ai
+
+            else:
+                updated_player.isAI = False
+                if(updated_player.ai != None):
+                    updated_player.ai.delete()
+                    updated_player.ai = None
+
+            updated_player.save()
+
+            print("Player has been updated into the DB")
+            messages.success(request, f'Player updated: {updated_player.nickname} !')
+            return redirect('home')
+    else:
+        form = EditPlayerForm()
+    return render(request, 'users_auth/register.html', {'form': form})
+

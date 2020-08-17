@@ -12,9 +12,13 @@ def home(request):
 
 def resetGame(request):
     board = Board.objects.get(name="game")
+    p1 = board.p1
+    p2 = board.p2
     board.delete()
 
     board = Board.create_and_init_board("game", 4)
+    board.p1 = p1
+    board.p2 = p2
     board.save()
 
     return redirect('/board/game')
@@ -22,8 +26,10 @@ def resetGame(request):
 def game(request):
     board_set = Board.objects.filter(name="game")
     if len(board_set) < 1:
+        last_board = Board.objects.all()[len(Board.objects.all())-1]
         board = Board.create_and_init_board("game", 4)
         board.save()
+        messages.success(request, last_board.get_winner_name())
         return redirect('/board/home')
     else:
         board = board_set[0]
@@ -119,3 +125,5 @@ def settings(request):
     else:
         form = PlayersChoiceForm()
         return render(request, 'board/settings.html', {'form': form})
+
+    
