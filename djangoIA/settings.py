@@ -71,7 +71,6 @@ TEMPLATES = [
             ],
 
             'libraries':{
-                'djangoIA_tags': 'board.templatetags.djangoIA_tags',
 
             }
         },
