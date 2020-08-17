@@ -63,13 +63,16 @@ class Board(models.Model):
         board = Board()
         board.name = name
         board.size = size
-        board.grid = [[0 for i in range(board.size)]for j in range(board.size)]
-        board.grid[0][0] = 1
-        board.grid[board.size-1][board.size-1] = 2
-        board.pos1 = [0, 0]
-        board.pos2 = [board.size-1, board.size-1]
-        board.nbTurns = 0
+        board.reset()
         return board
+
+    def reset_board(self):
+        self.grid = [[0 for i in range(board.size)] for j in range(board.size)]
+        self.grid[0][0] = 1
+        self.grid[self.size - 1][self.size - 1] = 2
+        self.pos1 = [0, 0]
+        self.pos2 = [self.size - 1, self.size - 1]
+        self.nbTurns = 0
 
     def is_in_grid(self, node):
         return (0 <= node[0] <= (self.size - 1)) and (0 <= node[1] <= (self.size - 1))
