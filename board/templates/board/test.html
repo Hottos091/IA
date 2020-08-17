@@ -15,9 +15,6 @@
     currentPlayer = (nbTurns % 2) + 1;
     document.getElementById('player_turn').innerHTML = "Player " + String(currentPlayer) + "'s Turn.";
 
-    setTimeout(function() {
-        document.location.reload(1);
-    }, 15);
     let debugOutput = "";
     let logs = document.getElementById("log");
     let tds = document.getElementsByClassName("td");
@@ -34,8 +31,20 @@
                 document.getElementById("form").action = `/board/move${this.innerHTML}/${currentPlayer}`;
             });
         }
-    }
 
+        if (document.location.href.includes("move")) {
+            //Allows Player vs. Player && Player vs.IA
+            document.location = "/board/game";
+        } else {
+            p1 = ("{{ board.p1.isAI }}" == "True");
+            p2 = ("{{ board.p2.isAI }}" == "True");
+            if (p1 == true && p2 == true) {
+                setTimeout(function() {
+                    document.location.reload(1);
+                }, 15);
+            }
+        }
+    }
 
     function playTurn(player) {
         let elem = document.createElement("p");

@@ -42,22 +42,25 @@ def game(request):
             print("===============BEST MOVE================ : " + str(best_ai_move))
             board.move(currentPlayerId, str(best_ai_move))
             time.sleep(0.5)
+        
+            
+
 
         print(f"Player 1 : {board.p1} - Player 2 : {board.p2}")
 
-    return render(request, 'board/test.html', {'grid': board.print_board(), 'nbTurns': board.nbTurns})
-
+    return render(request, 'board/test.html', {'grid': board.print_board(), 'nbTurns': board.nbTurns, 'board': board})
 
 def moveDown(request, id):
     board = Board.objects.get(name="game")
     board.move(id, "down")
-
+    
     return render(request, 'board/test.html', {'grid': board.print_board(), 'nbTurns': board.nbTurns})
 
 
 def moveUp(request, id):
     board = Board.objects.get(name="game")
     board.move(id, "up")
+    
 
     return render(request, 'board/test.html', {'grid': board.print_board(), 'nbTurns': board.nbTurns})
 
