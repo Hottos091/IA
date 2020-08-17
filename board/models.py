@@ -63,11 +63,11 @@ class Board(models.Model):
         board = Board()
         board.name = name
         board.size = size
-        board.reset()
+        board.reset_board()
         return board
 
     def reset_board(self):
-        self.grid = [[0 for i in range(board.size)] for j in range(board.size)]
+        self.grid = [[0 for i in range(self.size)] for j in range(self.size)]
         self.grid[0][0] = 1
         self.grid[self.size - 1][self.size - 1] = 2
         self.pos1 = [0, 0]

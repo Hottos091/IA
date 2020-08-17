@@ -5,20 +5,22 @@
     <button class="direction">Down</button>
     <button class="direction">Right</button>
     <button id="reset">Reset</button>
+    <p id="player_turn">unknown</p>
 </form>
 
 <div id="log"></div>
 </br>
 <script>
+    nbTurns = "{{ nbTurns }}";
+    currentPlayer = (nbTurns % 2) + 1;
+    document.getElementById('player_turn').innerHTML = "Player " + String(currentPlayer) + "'s Turn.";
+
     setTimeout(function() {
         document.location.reload(1);
     }, 15);
     let debugOutput = "";
     let logs = document.getElementById("log");
     let tds = document.getElementsByClassName("td");
-    nbTurns = "{{ nbTurns }}";
-    currentPlayer = (nbTurns % 2) + 1;
-
 
 
     window.onload = function init() {
@@ -31,7 +33,6 @@
             directionnalButtons[i].addEventListener("click", function() {
                 document.getElementById("form").action = `/board/move${this.innerHTML}/${currentPlayer}`;
             });
-
         }
     }
 
@@ -40,8 +41,6 @@
         let elem = document.createElement("p");
         elem.innerHTML = `Tour ${nbTurns} - ${player.tag} joue.`;
         logs.appendChild(elem);
-
-
     }
 
     function move(event) {
