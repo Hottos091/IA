@@ -86,8 +86,8 @@ def settings(request):
             print("p1 : " + str(p1))
             print("p2 : " + str(p2))
             if p1 == p2:
-                messages.success(request, 'You cannot play with both the same player')
-                return redirect('home')
+                messages.error(request, 'You cannot play with both the same player')
+                return redirect('/board/game/settings')
             else:
                 if(p1.isAI):
                     print("P1 AI is starting...")

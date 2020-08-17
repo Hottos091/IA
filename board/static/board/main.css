@@ -37,6 +37,10 @@ td {
     text-align: center;
 }
 
+.error {
+    color: red;
+}
+
 .joueur1 {
     color: black;
     background-color: red;

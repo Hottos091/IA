@@ -354,11 +354,14 @@ class AI(models.Model):
     def __str__(self):
         return f"Player ID : {self.player} - DR : {self.discovery_rate} - LR : {self.learning_rate}"
 
-    def start(self, player_id, discovery_rate=0.5, board_size=4):
+    def start(self, player_id, discovery_rate=0.5, board_size=4, learning_rate=0):
         self.transitions = []
         self.player = player_id
         self.discovery_rate = discovery_rate
-        self.learning_rate = get_learning_rate(board_size)
+        if learning_rate > 0:
+            self.learning_rate = learning_rate
+        else:
+            self.learning_rate = get_learning_rate(board_size)
 
     def get_move(self, board):
         # first, add the new transition
