@@ -9,20 +9,75 @@
     <form method="POST">
         {% csrf_token %}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Register a new player now: </legend>
+            <legend class="border-bottom mb-4">Fill the form : </legend>
         </fieldset>
         <table border=1>
             {{ form }}
         </table>
-        <div class="form-group">
-            <button class="btn btn-outline-info" type="submit">Sign up</button>
+        <div id="div_choice" style="display:none">
+            <table border=1>
+                <fieldset>
+                    <tr>
+                        <th>
+                            <label for="dr">discovery_rate : </label>
+                        </th>
+                        <td>
+                            <input type="text" name="dr" id="discovery_rate" maxlength=15>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="dr">learning_rate : </label>
+                        </th>
+                        <td>
+                            <input type="text" name="lr" id="learning_rate" maxlength=15><br>
+                        </td>
+                    </tr>
+                </fieldset>
+            </table>
         </div>
+        <label for="choice">Choose discovery & learning rates ?</label><br>
+        <input type="checkbox" name="choice" id="checkbox_choice"><br>
+
+
+        <table <div class="form-group">
+            <button class="btn btn-outline-info" type="submit">Confirm</button>
     </form>
-    <div class="border-top pt-3">
-        <small class="text-muted">
-          Already registered ? <a class="ml-2" href="#">Sign in</a>
-        </small>
-    </div>
+</div>
+
+
+<script>
+    let div = document.getElementById("div_choice");
+    let radioAI = document.getElementById("id_player_type_1");
+    let checkboxChoice = document.getElementById("checkbox_choice");
+
+
+    checkboxChoice.addEventListener('change', function() {
+        if (radioAI.checked) {
+            if (this.checked) {
+                div.style.display = "block";
+            } else {
+                div.style.display = "none";
+            }
+        } else {
+            this.checked = false;
+            alert("You must choose to create/edit an AI player !");
+        }
+    });
+
+    //If human is checked, hide the choice div and unckeck the checkbox
+    document.getElementById("id_player_type_0").addEventListener('hide_choice', function() {
+        if (this.checked) {
+            div.style.display = "none";
+            checkboxChoice.checked = false;
+        }
+    });
+</script>
+
+<div class="border-top pt-3">
+    <small class="text-muted">
+        <p>Wanna play ? <a class="ml-2" href='/board/game/settings'>GO !</a></p>
+    </small>
 </div>
 
 {% endblock html_body %}

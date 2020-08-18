@@ -14,4 +14,4 @@ class EditPlayerForm(forms.Form):
 
     players = forms.ModelChoiceField(queryset=Player.objects.all())
     new_nickname = forms.CharField(label='New nickname', max_length=150)
-    new_player_type = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES)
+    player_type = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES)
