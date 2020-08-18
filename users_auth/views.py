@@ -16,14 +16,21 @@ def register(request):
             print("Type Player TYPE : " + str(type(player_type)))
             new_player = Player(nickname=nickname, totalGames=0)
             if player_type == "2":
-                print(" THIS DUDE AN AI ")
+                dr = request.POST['dr']
+                lr = request.POST['lr']
+                
                 ai = AI()
                 ai.start(2)
+                
+
+                if(dr):
+                    ai.discovery_rate = dr
+                if(lr):
+                    ai.learning_rate = lr
                 ai.save()
 
-                new_player.isAI = True
                 new_player.ai = ai
-
+                new_player.isAI = True
                 new_player.save()
             else:
                 new_player.isAI = False
@@ -46,16 +53,22 @@ def edit(request):
             updated_player = form.cleaned_data.get('players')
             updated_player.nickname = form.cleaned_data.get('new_nickname')
             
-            new_player_type = form.cleaned_data.get('new_player_type')
-            if new_player_type == "2":
+            updated_player_type = form.cleaned_data.get('player_type')
+            if updated_player_type == "2":
+                dr = request.POST['dr']
+                lr = request.POST['lr']
+                
                 ai = AI()
                 ai.start(2)
+                
+                if(dr):
+                    ai.discovery_rate = dr
+                if(lr):
+                    ai.learning_rate = lr
+
                 ai.save()
-
-                if(updated_player.isAI == False):
-                    updated_player.isAI = True
-                    updated_player.ai = ai
-
+                updated_player.ai = ai
+                updated_player.isAI = True
             else:
                 updated_player.isAI = False
                 if(updated_player.ai != None):
