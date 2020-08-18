@@ -42,9 +42,32 @@ class Player(models.Model):
     totalGames = models.IntegerField(null=True)
     isAI = models.BooleanField(default=True)
     ai = models.ForeignKey('AI', related_name="AI", on_delete=models.CASCADE, null=True)
+    custom_lr = models.FloatField(null=True)
+    custom_dr = models.FloatField(null=True)
 
     def __str__(self):
         return self.nickname+' : totalGames='+str(self.totalGames)+', AI : '+str(self.isAI)+' - AI DESC : '+str(self.ai)
+
+    def init_ai(self, player_id):
+        print("================", self.custom_dr,"================")
+        print("================", self.custom_lr,"================")
+        print("================", type(self.custom_dr),"================")
+        print("================", type(self.custom_lr),"================")
+        print("================", self.ai,"================")
+
+        if(self.custom_dr and self.custom_lr):
+            self.ai.start(player_id, self.custom_dr, 4, self.custom_lr)
+        else:
+            self.ai.start(player_id)
+
+
+        print("========TEST=======", self.ai,"================")
+        print("========TESTJ=======", self,"================")
+
+        self.ai.save()
+        self.save()
+
+        
 
 
 class Board(models.Model):

@@ -16,25 +16,24 @@ def register(request):
             print("Type Player TYPE : " + str(type(player_type)))
             new_player = Player(nickname=nickname, totalGames=0)
             if player_type == "2":
-                dr = request.POST['dr']
-                lr = request.POST['lr']
+                dr = float(request.POST['dr'])
+                lr = float(request.POST['lr'])
                 
                 ai = AI()
-                ai.start(2)
-                
+                new_player.ai = ai
 
                 if(dr):
-                    ai.discovery_rate = dr
+                    new_player.custom_dr = dr
                 if(lr):
-                    ai.learning_rate = lr
-                ai.save()
+                    new_player.custom_lr = lr
 
-                new_player.ai = ai
+                new_player.init_ai(0)
+
+                ai.save()
                 new_player.isAI = True
                 new_player.save()
             else:
                 new_player.isAI = False
-
             print(new_player)
             new_player.save()
 
@@ -55,19 +54,20 @@ def edit(request):
             
             updated_player_type = form.cleaned_data.get('player_type')
             if updated_player_type == "2":
-                dr = request.POST['dr']
-                lr = request.POST['lr']
+                dr = float(request.POST['dr'])
+                lr = float(request.POST['lr'])
                 
                 ai = AI()
-                ai.start(2)
-                
-                if(dr):
-                    ai.discovery_rate = dr
-                if(lr):
-                    ai.learning_rate = lr
-
-                ai.save()
                 updated_player.ai = ai
+                print("======UPDATEB========", updated_player.ai,"================")
+
+                if(dr):
+                    updated_player.custom_dr = dr
+                if(lr):
+                    updated_player.custom_lr = lr
+
+                updated_player.init_ai(0)
+                print("======UPDATE========", updated_player,"================")
                 updated_player.isAI = True
             else:
                 updated_player.isAI = False

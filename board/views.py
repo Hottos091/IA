@@ -100,15 +100,20 @@ def settings(request):
             else:
                 if(p1.isAI):
                     print("P1 AI is starting...")
-                    p1.ai.start(1)
-                    p1.ai.save()
-                    p1.save()
+                    print("========P1======", p1.ai,"================")
+                    p1.initAI(1)
+                    print("======P1========", p1.ai,"================")
+
+
+                    
+
                     print("Started.")
                 if(p2.isAI):
                     print("P2 AI is starting...")
-                    p2.ai.start(2)
-                    p2.ai.save()
-                    p2.save()
+                    print("=======P2=======", p2.ai,"================")
+                    p2.initAI(2)
+                    print("=======P2=======", p2.ai,"================")
+
                     print("Started.")
 
             board_set = Board.objects.filter(name="game")
