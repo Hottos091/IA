@@ -101,7 +101,7 @@ def settings(request):
                 if(p1.isAI):
                     print("P1 AI is starting...")
                     print("========P1======", p1.ai,"================")
-                    p1.initAI(1)
+                    p1.init_ai(1)
                     print("======P1========", p1.ai,"================")
 
 
@@ -111,7 +111,7 @@ def settings(request):
                 if(p2.isAI):
                     print("P2 AI is starting...")
                     print("=======P2=======", p2.ai,"================")
-                    p2.initAI(2)
+                    p2.init_ai(2)
                     print("=======P2=======", p2.ai,"================")
 
                     print("Started.")
