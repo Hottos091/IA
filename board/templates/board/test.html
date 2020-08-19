@@ -12,8 +12,10 @@
 </br>
 <script>
     nbTurns = "{{ nbTurns }}";
-    currentPlayer = (nbTurns % 2) + 1;
-    document.getElementById('player_turn').innerHTML = "Player " + String(currentPlayer) + "'s Turn.";
+    currentPlayerId = (nbTurns % 2) + 1;
+    
+    
+    document.getElementById('player_turn').innerHTML = "Player " + String(currentPlayerId) + "'s Turn.";
 
     let debugOutput = "";
     let logs = document.getElementById("log");
@@ -28,16 +30,26 @@
         directionnalButtons = document.getElementsByClassName("direction");
         for (let i = 0; i < directionnalButtons.length; i++) {
             directionnalButtons[i].addEventListener("click", function() {
-                document.getElementById("form").action = `/board/move${this.innerHTML}/${currentPlayer}`;
+                document.getElementById("form").action = `/board/move${this.innerHTML}/${currentPlayerId}`;
             });
         }
 
+        p1 = ("{{ board.p1.isAI }}" == "True");
+        p2 = ("{{ board.p2.isAI }}" == "True");
+
+        isCurrentPlayerAI = (currentPlayerId == '1') ? p1 : p2;
+
+        //Check if buttons should be hidden or not
+        if(isCurrentPlayerAI){
+            buttons = document.getElementsByTagName("button");
+            buttons.foreach(button => button.style.display = "none");
+        } 
+        
         if (document.location.href.includes("move")) {
-            //Allows Player vs. Player && Player vs.IA
+            //Allows Player vs. Player && Player vs.AI
             document.location = "/board/game";
         } else {
-            p1 = ("{{ board.p1.isAI }}" == "True");
-            p2 = ("{{ board.p2.isAI }}" == "True");
+            //Triggers auto-refreshing for AI vs. AI
             if (p1 == true && p2 == true) {
                 setTimeout(function() {
                     document.location.reload(1);
@@ -46,7 +58,7 @@
         }
     }
 
-    function playTurn(player) {
+    /*function playTurn(player) {
         let elem = document.createElement("p");
         elem.innerHTML = `Tour ${nbTurns} - ${player.tag} joue.`;
         logs.appendChild(elem);
@@ -54,7 +66,7 @@
 
     function move(event) {
         let target = event.target.innerHTML.toLowerCase();
-        let player = currentPlayer.tag;
+        let player = currentPlayerId.tag;
         let output = `Cible de l'événement : ${target}. Joueur : ${player}`;
 
         alert(output);
@@ -62,7 +74,7 @@
 
         debugOutput = alphaMove();
         alert(debugOutput);
-    }
+    }*/
 </script>
 </br>
 {% endblock html_body %}
