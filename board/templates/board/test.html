@@ -14,15 +14,12 @@
     nbTurns = "{{ nbTurns }}";
     currentPlayerId = (nbTurns % 2) + 1;
 
-    document.getElementById("reset").addEventListener("click", function() {
-        document.getElementById("form").action = "/board/game/resetGame";
-    });
+
     document.getElementById('player_turn').innerHTML = "Player " + String(currentPlayerId) + "'s Turn.";
 
     let debugOutput = "";
     let logs = document.getElementById("log");
     let tds = document.getElementsByClassName("td");
-
 
     window.onload = function init() {
 
@@ -30,7 +27,9 @@
             document.location.href = "/board/home"
         }
 
-
+        document.getElementById("reset").addEventListener("click", function() {
+            document.getElementById("form").action = "/board/game/resetGame";
+        });
 
         p1 = ("{{ board.p1.isAI }}" == "True");
         p2 = ("{{ board.p2.isAI }}" == "True");
@@ -39,23 +38,24 @@
 
         //Check if buttons should be created or not
         if (isCurrentPlayerAI) {
-            //document.getElementById("reset").style.display = "none";
             let buttons = document.getElementsByTagName("button");
-
             for (let button of buttons) {
                 button.style.display = "none";
             }
 
         } else {
-            buttons = document.getElementsByTagName("button");
+            buttons = document.getElementsByClassName("direction");
             for (let button of buttons) {
                 button.style.display = "inline-block";
-
                 button.addEventListener("click", function() {
                     document.getElementById("form").action = `/board/move${this.innerHTML}/${currentPlayerId}`;
 
                 });
             }
+            document.getElementById("reset").style.display = "inline-block";
+
+
+
         }
 
         if (document.location.href.includes("move")) {
