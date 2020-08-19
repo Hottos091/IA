@@ -12,23 +12,20 @@ def register(request):
             nickname = form.cleaned_data.get('nickname')
             player_type = form.cleaned_data.get('player_type')
 
-            print("(str)Player TYPE : " + str(player_type))
-            print("Type Player TYPE : " + str(type(player_type)))
             new_player = Player(nickname=nickname, totalGames=0)
             if player_type == "2":
-                dr = float(request.POST['dr'])
-                lr = float(request.POST['lr'])
+                if(request.POST['dr']):
+                    dr = float(request.POST['dr'])
+                    new_player.custom_dr = dr
+                if(request.POST['lr']):
+                    lr = float(request.POST['lr'])
+                    new_player.custom_lr = lr
                 
                 ai = AI()
                 new_player.ai = ai
 
-                if(dr):
-                    new_player.custom_dr = dr
-                if(lr):
-                    new_player.custom_lr = lr
-
                 new_player.init_ai(0)
-                updated_player.ai = ai
+                new_player.ai = ai
 
                 ai.save()
                 new_player.isAI = True
@@ -38,7 +35,7 @@ def register(request):
             print(new_player)
             new_player.save()
 
-            print("New Player is now saved in DB")
+            print("New player is now saved in DB")
             messages.success(request, f'Player created : {nickname} !')
             return redirect('home')
     else:
@@ -55,16 +52,16 @@ def edit(request):
             
             updated_player_type = form.cleaned_data.get('player_type')
             if updated_player_type == "2":
-                dr = float(request.POST['dr'])
-                lr = float(request.POST['lr'])
-                
+                if(request.POST['dr']):
+                    dr = float(request.POST['dr'])
+                    updated_player.custom_dr = dr
+                if(request.POST['lr']):
+                    lr = float(request.POST['lr'])
+                    updated_player.custom_lr = lr
+
                 ai = AI()
                 updated_player.ai = ai
 
-                if(dr):
-                    updated_player.custom_dr = dr
-                if(lr):
-                    updated_player.custom_lr = lr
 
                 updated_player.init_ai(0)
                 updated_player.ai = ai

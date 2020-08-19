@@ -49,20 +49,10 @@ class Player(models.Model):
         return self.nickname+' : totalGames='+str(self.totalGames)+', AI : '+str(self.isAI)+' - AI DESC : '+str(self.ai)
 
     def init_ai(self, player_id):
-        print("================", self.custom_dr,"================")
-        print("================", self.custom_lr,"================")
-        print("================", type(self.custom_dr),"================")
-        print("================", type(self.custom_lr),"================")
-        print("================", self.ai,"================")
-
-        if(self.custom_dr and self.custom_lr):
+        if(self.custom_dr or self.custom_lr):
             self.ai.start(player_id, self.custom_dr, 4, self.custom_lr)
         else:
             self.ai.start(player_id)
-
-
-        print("========TEST=======", self.ai,"================")
-        print("========TESTJ=======", self,"================")
 
         self.ai.save()
         self.save()
@@ -291,14 +281,13 @@ class Board(models.Model):
     def get_winner_name(self):
         winner = self.get_winner()
 
-        print("PLAYER : " + str(winner))
-        output = "La victoire revient à "
+        output = "Victory goes to "
         if int(winner) == 1:
             output += self.p1.nickname
         elif int(winner) == 2:
             output += self.p2.nickname
         else:
-            output = f"Les deux joueurs ({self.p1.nickname} et {self.p2.nickname}) sont ex-æquo !"
+            output = f"The two players ({self.p1.nickname} and {self.p2.nickname}) are even !"
         
         self.p1.save()
         self.p2.save()
@@ -390,8 +379,9 @@ class AI(models.Model):
     def start(self, player_id, discovery_rate=0.5, board_size=4, learning_rate=0):
         self.transitions = []
         self.player = player_id
-        self.discovery_rate = discovery_rate
-        if learning_rate > 0:
+        self.discovery_rate = discovery_rate or 0.5
+
+        if learning_rate and learning_rate > 0:
             self.learning_rate = learning_rate
         else:
             self.learning_rate = get_learning_rate(board_size)

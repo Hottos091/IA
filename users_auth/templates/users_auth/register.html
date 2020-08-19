@@ -4,12 +4,19 @@
     #ai {
         margin-left: 45px;
     }
+    
+    td,
+    th,
+    tr,
+    table {
+        border-color: #fafafa;
+    }
 </style>
 <div class="body-form">
     <form method="POST">
         {% csrf_token %}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Fill the form : </legend>
+            <legend class="border-bottom mb-4">Fill the form </legend>
         </fieldset>
         <table border=1>
             {{ form }}
@@ -19,7 +26,7 @@
                 <fieldset>
                     <tr>
                         <th>
-                            <label for="dr">discovery_rate : </label>
+                            <label for="dr">discovery_rate </label>
                         </th>
                         <td>
                             <input type="text" name="dr" id="discovery_rate" maxlength=15>
@@ -27,7 +34,7 @@
                     </tr>
                     <tr>
                         <th>
-                            <label for="dr">learning_rate : </label>
+                            <label for="dr">learning_rate </label>
                         </th>
                         <td>
                             <input type="text" name="lr" id="learning_rate" maxlength=15><br>
@@ -50,6 +57,7 @@
     let div = document.getElementById("div_choice");
     let radioAI = document.getElementById("id_player_type_1");
     let checkboxChoice = document.getElementById("checkbox_choice");
+    let radioHuman = document.getElementById("id_player_type_0");
 
 
     checkboxChoice.addEventListener('change', function() {
@@ -66,17 +74,17 @@
     });
 
     //If human is checked, hide the choice div and unckeck the checkbox
-    document.getElementById("id_player_type_0").addEventListener('hide_choice', function() {
+    radioHuman.onclick = function() {
         if (this.checked) {
             div.style.display = "none";
             checkboxChoice.checked = false;
         }
-    });
+    };
 </script>
 
 <div class="border-top pt-3">
     <small class="text-muted">
-        <p>Wanna play ? <a class="ml-2" href='/board/game/settings'>GO !</a></p>
+        <p>Wanna play ?<a class="ml-2" href='/board/game/settings'>GO !</a></p>
     </small>
 </div>
 
