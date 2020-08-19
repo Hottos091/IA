@@ -28,6 +28,7 @@ def register(request):
                     new_player.custom_lr = lr
 
                 new_player.init_ai(0)
+                updated_player.ai = ai
 
                 ai.save()
                 new_player.isAI = True
@@ -59,7 +60,6 @@ def edit(request):
                 
                 ai = AI()
                 updated_player.ai = ai
-                print("======UPDATEB========", updated_player.ai,"================")
 
                 if(dr):
                     updated_player.custom_dr = dr
@@ -67,7 +67,8 @@ def edit(request):
                     updated_player.custom_lr = lr
 
                 updated_player.init_ai(0)
-                print("======UPDATE========", updated_player,"================")
+                updated_player.ai = ai
+
                 updated_player.isAI = True
             else:
                 updated_player.isAI = False

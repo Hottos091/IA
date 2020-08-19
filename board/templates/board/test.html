@@ -27,23 +27,24 @@
         document.getElementById("reset").addEventListener("click", function() {
             document.getElementById("form").action = "/board/game/resetGame";
         });
-        directionnalButtons = document.getElementsByClassName("direction");
-        for (let i = 0; i < directionnalButtons.length; i++) {
-            directionnalButtons[i].addEventListener("click", function() {
-                document.getElementById("form").action = `/board/move${this.innerHTML}/${currentPlayerId}`;
-            });
-        }
+        
 
         p1 = ("{{ board.p1.isAI }}" == "True");
         p2 = ("{{ board.p2.isAI }}" == "True");
 
         isCurrentPlayerAI = (currentPlayerId == '1') ? p1 : p2;
 
-        //Check if buttons should be hidden or not
+        //Check if buttons should be created or not
         if(isCurrentPlayerAI){
-            buttons = document.getElementsByTagName("button");
-            buttons.foreach(button => button.style.display = "none");
-        } 
+           document.getElementById("reset").style.display = "none";
+        } else {
+            directionnalButtons = document.getElementsByClassName("direction");
+            for (let i = 0; i < directionnalButtons.length; i++) {
+                directionnalButtons[i].addEventListener("click", function () {
+                    document.getElementById("form").action = `/board/move${this.innerHTML}/${currentPlayerId}`;
+                });
+            }
+        }
         
         if (document.location.href.includes("move")) {
             //Allows Player vs. Player && Player vs.AI
