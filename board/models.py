@@ -138,8 +138,6 @@ class Board(models.Model):
             output += "</table>"
             self.grid = grid
             self.save()
-            print(self.p1)
-            print(self.p2)
             return output
         else:
             return self.end_game()

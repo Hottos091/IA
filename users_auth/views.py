@@ -32,7 +32,6 @@ def register(request):
                 new_player.save()
             else:
                 new_player.isAI = False
-            print(new_player)
             new_player.save()
 
             print("New player is now saved in DB")
